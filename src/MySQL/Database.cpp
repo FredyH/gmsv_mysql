@@ -16,9 +16,8 @@ namespace MySQL {
 				my_bool reconnect = 1;
 				mysql_options(connection[i], MYSQL_OPT_RECONNECT, &reconnect);
 
-				if (i != 0) { // First connection is dedicated for 'main thread' calls
+				if (i != 0) // First connection is dedicated for 'main thread' calls
 					std::thread(&Database::Worker, this, connection[i]).detach();
-				}
 			}
 		mutex.unlock();
 	}
@@ -48,9 +47,8 @@ namespace MySQL {
 		while (MySQL::Query *query = Poll())
 			query->Free(); // Queries not cleared by this point won't be handled by MySQL::Poll
 
-		for (int i = 0; i < CONNECTION_COUNT; i++) {
+		for (int i = 0; i < CONNECTION_COUNT; i++)
 			mysql_close(connection[i]);
-		}
 	}
 
 	const char *Database::Connect(const char *server, const char *username, const char *password, const char *database, const int port) {
@@ -130,8 +128,7 @@ namespace MySQL {
 
 						if (error) {
 							query->SetError(mysql_error(connection));
-						}
-						else {
+						} else {
 							query->SetResults(mysql_store_result(connection));
 							query->insert_id = mysql_insert_id(connection);
 						}
