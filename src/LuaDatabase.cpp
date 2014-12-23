@@ -119,7 +119,7 @@ namespace LuaDatabase {
 
 		for (const char *p = pattern; *p; p++) {
 
-			if (!raw && *p == '%') {
+			if (!raw && *p == '?') {
 				stack_offset++;
 					
 				if (LUA->IsType(stack_offset + 2, Lua::Type::FUNCTION)) { // Catch out anybody giving their callback as data to store in the query
