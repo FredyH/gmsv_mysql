@@ -143,15 +143,22 @@ namespace LuaDatabase {
 			sql << *p;		
 		}
 
-		int callback = 0;
+		int callback_success = 0;
+		int callback_error = 0;
 
 		if (LUA->IsType(stack_offset + 3, Lua::Type::FUNCTION)) {
 			LUA->Push(stack_offset + 3);
-			callback = LUA->ReferenceCreate();
+			callback_success = LUA->ReferenceCreate();
+		}
+
+		if (LUA->IsType(stack_offset + 4, Lua::Type::FUNCTION)) {
+			LUA->Push(stack_offset + 4);
+			callback_error = LUA->ReferenceCreate();
 		}
 
 		QueryUserData *query = new QueryUserData;
-		query->callback = callback;
+		query->callback_success = callback_success;
+		query->callback_error = callback_error;
 		query->multi = multi;
 
 		LUA->ReferencePush(debug_traceback);

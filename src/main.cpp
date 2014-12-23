@@ -15,10 +15,10 @@ int Poll(lua_State *state) {
 		// TODO: Make this not look shitizzle. Maybe optimize out the repeated MySQL API calls
 
 		if (query->success) {
-			if (ud->callback != 0) {
+			if (ud->callback_success != 0) {
 
 				if (ud->multi) {
-					LUA->ReferencePush(ud->callback);
+					LUA->ReferencePush(ud->callback_success);
 					LUA->CreateTable();
 
 					int index = 1;
@@ -41,7 +41,7 @@ int Poll(lua_State *state) {
 					LUA->Call(2, 0);
 				} else {
 					while (MySQL::Row row = query->FetchRow()) {
-						LUA->ReferencePush(ud->callback);
+						LUA->ReferencePush(ud->callback_success);
 						LUA->CreateTable();
 
 						for (unsigned int i = 0; i < query->GetFieldCount(); i++) {
@@ -57,21 +57,32 @@ int Poll(lua_State *state) {
 				}
 			}
 		} else {
-			LUA->PushSpecial(Lua::SPECIAL_GLOB);
-				LUA->GetField(-1, "ErrorNoHalt");
-					LUA->PushString("MySQL Query Failed\nQuery: ");
-					LUA->PushString(query->sql);
-					LUA->PushString("\nError: ");
+			if (ud->callback_error != 0) {
+				LUA->ReferencePush(ud->callback_error);
 					LUA->PushString(query->error);
-					LUA->PushString("\n");
-					LUA->PushString(ud->traceback);
-					LUA->PushString("\n");
-				LUA->Call(7, 0);
-			LUA->Pop();
+					LUA->PushString(query->sql);
+				LUA->Call(2, 0);
+			} else {
+				LUA->PushSpecial(Lua::SPECIAL_GLOB);
+					LUA->GetField(-1, "ErrorNoHalt");
+						LUA->PushString("MySQL Query Failed\nQuery: ");
+						LUA->PushString(query->sql);
+						LUA->PushString("\nError: ");
+						LUA->PushString(query->error);
+						LUA->PushString("\n");
+						LUA->PushString(ud->traceback);
+						LUA->PushString("\n");
+					LUA->Call(7, 0);
+				LUA->Pop();
+			}
 		}
 
-		if (ud->callback != 0) {
-			LUA->ReferenceFree(ud->callback);
+		if (ud->callback_success != 0) {
+			LUA->ReferenceFree(ud->callback_success);
+		}
+
+		if (ud->callback_error != 0) {
+			LUA->ReferenceFree(ud->callback_error);
 		}
 
 		delete ud->traceback;

@@ -4,7 +4,8 @@
 
 namespace LuaDatabase {
 	struct QueryUserData {
-		int callback;
+		int callback_success;
+		int callback_error;
 		bool multi;
 		const char *traceback;
 	};
