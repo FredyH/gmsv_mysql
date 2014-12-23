@@ -69,12 +69,8 @@ namespace LuaDatabase {
 
 	int Remove(lua_State *state) {
 		MySQL::Database *db = GetDatabase(state, 1);
-
-		if (!db) {
-			return 0;
-		}
-
 		Lua::UserData *ud = reinterpret_cast<Lua::UserData *>(LUA->GetUserdata(1));
+
 		ud->data = nullptr; // Invalidate userdata
 
 		// Don't handle polling here no matter how much you want to, no need to cause any infinite loops.
@@ -92,7 +88,6 @@ namespace LuaDatabase {
 		char *buf = new char[len * 2 + 1]; // "In the worst case, each character may need to be encoded as using two bytes, and you need room for the terminating null byte."
 
 		db->Escape(buf, data, len);
-
 		LUA->PushString(buf);
 
 		delete[] buf;
