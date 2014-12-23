@@ -16,8 +16,7 @@ namespace MySQL {
 				my_bool reconnect = 1;
 				mysql_options(connection[i], MYSQL_OPT_RECONNECT, &reconnect);
 
-				if (i != 0) // First connection is dedicated for 'main thread' calls
-					std::thread(&Database::Worker, this, connection[i]).detach();
+				std::thread(&Database::Worker, this, connection[i]).detach();
 			}
 		mutex.unlock();
 	}

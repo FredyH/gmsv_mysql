@@ -11,7 +11,7 @@
 
 namespace MySQL {
 
-	const int CONNECTION_COUNT = 2;
+	const int CONNECTION_COUNT = 1;
 
 	class Database {
 		
