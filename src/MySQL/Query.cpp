@@ -33,6 +33,10 @@ namespace MySQL {
 		success = false;
 	}
 
+	bool Query::HasResults() {
+		return this->res != nullptr;
+	}
+
 	my_ulonglong Query::GetRowCount() {
 		return mysql_num_rows(res);
 	}

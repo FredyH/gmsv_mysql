@@ -19,6 +19,8 @@ namespace MySQL {
 		void SetResults(MYSQL_RES *res);
 		void SetError(const char *error);
 
+		bool Query::HasResults();
+
 		my_ulonglong GetRowCount();
 		Row Query::FetchRow();
 

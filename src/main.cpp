@@ -17,7 +17,14 @@ int Poll(lua_State *state) {
 		if (query->success) {
 			if (ud->callback_success != 0) {
 
-				if (ud->multi) {
+				if (!query->HasResults()) {
+					LUA->ReferencePush(ud->callback_success);
+
+					LUA->PushNil();
+					LUA->PushNumber(static_cast<double>(query->insert_id));
+
+					LUA->Call(2, 0);
+				} else if (ud->multi) {
 					LUA->ReferencePush(ud->callback_success);
 					LUA->CreateTable();
 

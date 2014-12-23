@@ -52,19 +52,19 @@ namespace MySQL {
 	}
 
 	const char *Database::Connect(const char *server, const char *username, const char *password, const char *database, const int port) {
-		mutex.lock();
-			for (int i = 0; i < CONNECTION_COUNT; i++) {
-				if (!mysql_real_connect(connection[i], server, username, password, database, port, nullptr, CLIENT_REMEMBER_OPTIONS)) {
-					mutex.unlock();
-					return mysql_error(connection[i]);
-				}
-
-				if (mysql_set_character_set(connection[i], "utf8")) {
-					mutex.unlock();
-					return mysql_error(connection[i]);
-				}
+		for (int i = 0; i < CONNECTION_COUNT; i++) {
+			if (!mysql_real_connect(connection[i], server, username, password, database, port, nullptr, CLIENT_REMEMBER_OPTIONS)) {
+				mutex.unlock();
+				return mysql_error(connection[i]);
 			}
 
+			if (mysql_set_character_set(connection[i], "utf8")) {
+				mutex.unlock();
+				return mysql_error(connection[i]);
+			}
+		}
+
+		mutex.lock();
 			first_connection = true;
 		mutex.unlock();
 
@@ -132,7 +132,7 @@ namespace MySQL {
 							MYSQL_RES *res = mysql_store_result(connection);
 
 							if (res) { // Successful query with data?
-								query->SetResults(mysql_store_result(connection));
+								query->SetResults(res);
 								query->insert_id = mysql_insert_id(connection);
 							} else if (*mysql_error(connection)) { // Error on storing result
 								query->SetError(mysql_error(connection));
