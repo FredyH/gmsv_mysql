@@ -61,7 +61,10 @@ namespace MySQL {
 					return mysql_error(connection[i]);
 				}
 
-				mysql_set_character_set(connection[i], "utf8"); // Assume success
+				if (mysql_set_character_set(connection[i], "utf8")) {
+					mutex.unlock();
+					return mysql_error(connection[i]);
+				}
 			}
 
 			first_connection = true;
