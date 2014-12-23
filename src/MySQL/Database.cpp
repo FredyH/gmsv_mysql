@@ -129,8 +129,17 @@ namespace MySQL {
 						if (error) {
 							query->SetError(mysql_error(connection));
 						} else {
-							query->SetResults(mysql_store_result(connection));
-							query->insert_id = mysql_insert_id(connection);
+							MYSQL_RES *res = mysql_store_result(connection);
+
+							if (res) { // Successful query with data?
+								query->SetResults(mysql_store_result(connection));
+								query->insert_id = mysql_insert_id(connection);
+							} else if (*mysql_error(connection)) { // Error on storing result
+								query->SetError(mysql_error(connection));
+							} else { // Empty result set
+								query->SetResults(nullptr);
+								query->insert_id = 0;
+							}
 						}
 
 					mutex.lock();
