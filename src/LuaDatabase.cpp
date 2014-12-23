@@ -95,7 +95,7 @@ namespace LuaDatabase {
 		return 1;
 	}
 
-	QueryUserData *CreateQuery(lua_State *state) {
+	QueryUserData *CreateQuery(lua_State *state, bool multi) {
 		static int debug_traceback = 0;
 
 		if (!debug_traceback) {
@@ -152,6 +152,7 @@ namespace LuaDatabase {
 
 		QueryUserData *query = new QueryUserData;
 		query->callback = callback;
+		query->multi = multi;
 
 		LUA->ReferencePush(debug_traceback);
 			LUA->PushString("");
@@ -168,15 +169,13 @@ namespace LuaDatabase {
 	}
 
 	int Query(lua_State *state) {
-		QueryUserData *query = CreateQuery(state);
-		query->multi = false;
+		QueryUserData *query = CreateQuery(state, false);
 
 		return 0;
 	}
 
 	int QueryAll(lua_State *state) {
-		QueryUserData *query = CreateQuery(state);
-		query->multi = true;
+		QueryUserData *query = CreateQuery(state, true);
 
 		return 0;
 	}
