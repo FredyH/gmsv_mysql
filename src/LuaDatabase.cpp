@@ -213,9 +213,6 @@ namespace LuaDatabase {
 
 			LUA->CreateTable();
 
-				LUA->PushCFunction(Remove);
-				LUA->SetField(-2, "Remove");
-
 				LUA->PushCFunction(Query);
 				LUA->SetField(-2, "Query");
 
