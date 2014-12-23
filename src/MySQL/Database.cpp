@@ -81,7 +81,7 @@ namespace MySQL {
 	}
 
 	unsigned long Database::Escape(char *buf, const char *data, unsigned long len) {
-		return mysql_real_escape_string(connection[0], buf, data, len);;
+		return mysql_real_escape_string(connection[0], buf, data, len);
 	}
 
 	MySQL::Query *Database::Poll() {
