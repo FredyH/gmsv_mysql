@@ -49,15 +49,17 @@ namespace MySQL {
 			query->Free(); // Queries not cleared by this point won't be handled by MySQL::Poll
 
 		for (int i = 0; i < CONNECTION_COUNT; i++) {
-			mysql_close(connection[i]);
+			mysql_close(connection[i]); // Doesn't care if we give it a yet to be allocated pointer, i'll abuse this feature
 		}
 	}
 
 	const char *Database::Connect(const char *server, const char *username, const char *password, const char *database, const int port) {
 		mutex.lock();
 			for (int i = 0; i < CONNECTION_COUNT; i++) {
-				if (!mysql_real_connect(connection[i], server, username, password, database, port, nullptr, CLIENT_REMEMBER_OPTIONS))
+				if (!mysql_real_connect(connection[i], server, username, password, database, port, nullptr, CLIENT_REMEMBER_OPTIONS)) {
+					mutex.unlock();
 					return mysql_error(connection[i]);
+				}
 
 				mysql_set_character_set(connection[i], "utf8"); // Assume success
 			}
