@@ -12,14 +12,15 @@ int Poll(lua_State *state) {
 	while (MySQL::Query *query = MySQL::Poll()) {
 		LuaDatabase::QueryUserData *ud = reinterpret_cast<LuaDatabase::QueryUserData *>(query->userdata);
 
+		// TODO: Make this not look shitizzle. Maybe optimize out the repeated MySQL API calls
+
 		if (query->success) {
 			if (ud->callback != 0) {
-				
-				LUA->ReferencePush(ud->callback);
-
-				LUA->CreateTable();
 
 				if (ud->multi) {
+					LUA->ReferencePush(ud->callback);
+					LUA->CreateTable();
+
 					int index = 1;
 
 					while (MySQL::Row row = query->FetchRow()) {
@@ -34,19 +35,26 @@ int Poll(lua_State *state) {
 
 						LUA->RawSet(-3);
 					}
+
+					LUA->PushNumber(static_cast<double>(query->insert_id));
+
+					LUA->Call(2, 0);
 				} else {
-					if (MySQL::Row row = query->FetchRow()) {
+					while (MySQL::Row row = query->FetchRow()) {
+						LUA->ReferencePush(ud->callback);
+						LUA->CreateTable();
+
 						for (unsigned int i = 0; i < query->GetFieldCount(); i++) {
 							LUA->PushString(query->GetFieldName(i));
 							LUA->PushString(row[i], query->GetFieldLength(i));
 							LUA->RawSet(-3);
 						}
+
+						LUA->PushNumber(static_cast<double>(query->insert_id));
+
+						LUA->Call(2, 0);
 					}
 				}
-
-				LUA->PushNumber(static_cast<double>(query->insert_id));
-
-				LUA->Call(2, 0);
 			}
 		} else {
 			LUA->PushSpecial(Lua::SPECIAL_GLOB);
