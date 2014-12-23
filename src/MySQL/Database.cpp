@@ -32,7 +32,7 @@ namespace MySQL {
 
 		mutex.lock();
 			removing = true;
-			remove_count = CONNECTION_COUNT - 1;
+			remove_count = CONNECTION_COUNT;
 		mutex.unlock();
 
 		int l_remove_count = -1;
@@ -51,6 +51,8 @@ namespace MySQL {
 	}
 
 	const char *Database::Connect(const char *server, const char *username, const char *password, const char *database, const int port) {
+		mutex.lock();
+
 		for (int i = 0; i < CONNECTION_COUNT; i++) {
 			if (!mysql_real_connect(connection[i], server, username, password, database, port, nullptr, CLIENT_REMEMBER_OPTIONS)) {
 				mutex.unlock();
@@ -62,9 +64,9 @@ namespace MySQL {
 				return mysql_error(connection[i]);
 			}
 		}
+		
 
-		mutex.lock();
-			first_connection = true;
+		first_connection = true;
 		mutex.unlock();
 
 		return nullptr;
