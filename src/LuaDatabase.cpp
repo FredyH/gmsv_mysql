@@ -95,7 +95,7 @@ namespace LuaDatabase {
 		return 1;
 	}
 
-	QueryUserData *CreateQuery(lua_State *state, bool multi) {
+	QueryUserData *CreateQuery(lua_State *state, bool raw, bool multi) {
 		static int debug_traceback = 0;
 
 		if (!debug_traceback) {
@@ -119,7 +119,7 @@ namespace LuaDatabase {
 
 		for (const char *p = pattern; *p; p++) {
 
-			if (*p == '%') {
+			if (!raw && *p == '%') {
 				stack_offset++;
 					
 				if (LUA->IsType(stack_offset + 2, Lua::Type::FUNCTION)) { // Catch out anybody giving their callback as data to store in the query
@@ -176,13 +176,25 @@ namespace LuaDatabase {
 	}
 
 	int Query(lua_State *state) {
-		QueryUserData *query = CreateQuery(state, false);
+		QueryUserData *query = CreateQuery(state, false, false);
 
 		return 0;
 	}
 
 	int QueryAll(lua_State *state) {
-		QueryUserData *query = CreateQuery(state, true);
+		QueryUserData *query = CreateQuery(state, false, true);
+
+		return 0;
+	}
+
+	int RawQuery(lua_State *state) {
+		QueryUserData *query = CreateQuery(state, true, false);
+
+		return 0;
+	}
+
+	int RawQueryAll(lua_State *state) {
+		QueryUserData *query = CreateQuery(state, true, true);
 
 		return 0;
 	}
@@ -197,6 +209,12 @@ namespace LuaDatabase {
 
 				LUA->PushCFunction(QueryAll);
 				LUA->SetField(-2, "QueryAll");
+
+				LUA->PushCFunction(RawQuery);
+				LUA->SetField(-2, "RawQuery");
+
+				LUA->PushCFunction(RawQueryAll);
+				LUA->SetField(-2, "RawQueryAll");
 
 				LUA->PushCFunction(Escape);
 				LUA->SetField(-2, "Escape");
