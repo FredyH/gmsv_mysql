@@ -49,7 +49,7 @@ namespace MySQL {
 			query->Free(); // Queries not cleared by this point won't be handled by MySQL::Poll
 
 		for (int i = 0; i < CONNECTION_COUNT; i++) {
-			mysql_close(connection[i]); // Doesn't care if we give it a yet to be allocated pointer, i'll abuse this feature
+			mysql_close(connection[i]);
 		}
 	}
 
