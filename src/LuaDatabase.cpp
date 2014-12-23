@@ -120,44 +120,22 @@ namespace LuaDatabase {
 		for (const char *p = pattern; *p; p++) {
 
 			if (*p == '%') {
-				++p;
 				stack_offset++;
-
-				switch (*p) {
-					case 's': {
-								  LUA->CheckType(stack_offset + 2, Lua::Type::STRING);
-
-								  unsigned int len = 0;
-								  const char *data = LUA->GetString(stack_offset + 2, &len);
-								  char *buf = new char[len * 2 + 1];
-
-								  db->Escape(buf, data, len);
-
-								  sql << "'" << buf << "'";
-
-								  delete[] buf;
-
-								  break;
-					}
-					case 'd': {
-								  LUA->CheckType(stack_offset + 2, Lua::Type::NUMBER);
-								  double number = LUA->GetNumber(stack_offset + 2);
-
-								  sql << number;
-
-								  break;
-					}
-					case 'b': {
-								  LUA->CheckType(stack_offset + 2, Lua::Type::BOOL);
-
-								  if (LUA->GetBool(stack_offset + 2))
-									  sql << "1";
-								  else
-									  sql << "0";
-
-								  break;
-					}
+					
+				if (LUA->IsType(stack_offset + 2, Lua::Type::FUNCTION)) { // Catch out anybody giving their callback as data to store in the query
+					LUA->CheckType(stack_offset + 2, Lua::Type::STRING);
+					return nullptr;
 				}
+
+				unsigned int len = 0;
+				const char *data = LUA->GetString(stack_offset + 2, &len);
+				char *buf = new char[len * 2 + 1];
+
+				db->Escape(buf, data, len);
+
+				sql << "'" << buf << "'";
+
+				delete[] buf;
 
 				continue;
 			}
